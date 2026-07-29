@@ -1,0 +1,57 @@
+# つみえらび
+
+Steamの候補URLまたはApp IDを2〜6本置き、現在価格、日本語レビュー、日本語対応、対応環境を同じ面で比べて「今夜の一本」を選ぶWebプロダクトです。
+
+本番: <https://tsumi-erabi.yhay81.com>
+
+## Product contract
+
+実装前または公開前に、次をプロダクト固有の内容へ更新してください。
+
+- `src/config/product.ts`: 名前、説明、利用者向けの短い見出し
+- `EXPERIMENT.md`: 対象利用者、比較方法、成功・失敗条件
+- `PRIVACY.md`: 実際に保存するデータ、保持期間、削除経路
+- `SECURITY.md`: 実装済み対策、未対応の制約、非公開連絡経路
+- `STACK.md`: 共通選択から外した技術と、その根拠
+- `wrangler.jsonc`: Worker名、`tsumi-erabi.yhay81.com`のCustom Domain、互換日付、必要なBindings
+- `src/ui/pages.tsx`: 説明用ヒーローを残さず、中核jobを完了できる実際の操作面
+
+初期の`data-template-surface="replace-before-release"`は、プロダクト固有の操作面へ置き換えた時点で削除してください。大きなコピーや検証条件で用途を説明せず、入力、編集、プレビュー、結果のデザインから何ができるか伝わる状態を公開条件にします。
+
+## External data
+
+- 利用者が明示した数値App IDだけをSteamへ問い合わせ、カタログ全体をクロールしません。
+- 商品情報と日本語レビュー集計は6時間キャッシュし、レビュー本文やSteamアカウント情報を保存しません。
+- Valve CorporationまたはSteamによる承認・提携サービスではありません。表示情報は購入前にSteamで再確認してください。
+
+## Local development
+
+Node.js 24はfnmで管理し、Vite+によるランタイム管理は無効にします。
+
+```powershell
+vp env off
+npm ci
+npm run dev
+```
+
+## Quality gate
+
+```powershell
+npm run check
+npm test
+npm run build
+```
+
+## Deployment
+
+CloudflareのBindingsと秘密値を確認し、`https://tsumi-erabi.yhay81.com`を正規URLとして同じ品質ゲートを通してから公開します。WranglerがCustom DomainのDNSと証明書を管理し、新規本番では`workers.dev`を公開しません。
+
+```powershell
+npm run release:check
+npm run deploy
+npm run indexnow
+```
+
+初回deploy後は実URLで主要jobを最後まで通し、Worker startup、認証、永続化、削除を確認してください。所有確認ファイルと`/sitemap.xml`を確認してから`npm run indexnow`を実行します。request pathへ追加する依存は、Node.js専用の`require`や`fs`ではなくWorkers互換のuniversal ESM/Web API実装を選びます。
+
+ユーザーデータ、秘密値、通報内容、productionログをGitへ保存しないでください。
