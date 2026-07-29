@@ -14,6 +14,7 @@ describe("browser client and metrics contract", () => {
 
   it("marks explicit QA traffic so automation is excluded from product metrics", () => {
     expect(client).toContain('get("qa") === "1"');
+    expect(client).toContain("navigator.webdriver === true");
     expect(client).toContain("automated");
     expect(metrics).toContain("WHERE is_automated = 0");
   });
