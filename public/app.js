@@ -20,7 +20,8 @@
 
   if (!(form instanceof HTMLFormElement) || !inputsRoot || !grid) return;
 
-  const automated = new URLSearchParams(location.search).get("qa") === "1";
+  const automated =
+    new URLSearchParams(location.search).get("qa") === "1" || navigator.webdriver === true;
   const storageKey = "tsumi-erabi:session";
   let games = [];
   let selectedAppId = null;
